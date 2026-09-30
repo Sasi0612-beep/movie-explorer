@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -34,10 +34,16 @@ export default function Home() {
   async function handleSearch(query, selectedFilters) {
     setFilters(selectedFilters);
     setSearchMode(Boolean(query.trim()));
-    await performSearch(query, selectedFilters, 1, false);
+
+    await performSearch(
+      query,
+      selectedFilters,
+      1,
+      false
+    );
   }
 
-  async function loadNextPage() {
+  const loadNextPage = useCallback(async () => {
     if (
       loadingSearch ||
       !searchMeta.query ||
@@ -52,11 +58,21 @@ export default function Home() {
       searchMeta.page + 1,
       true
     );
-  }
+  }, [
+    loadingSearch,
+    searchMeta.query,
+    searchMeta.page,
+    searchMeta.totalPages,
+    filters,
+    performSearch
+  ]);
 
   useEffect(() => {
     const node = sentinelRef.current;
-    if (!node) return;
+
+    if (!node) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -64,26 +80,38 @@ export default function Home() {
           loadNextPage();
         }
       },
-      { rootMargin: "500px" }
+      {
+        rootMargin: "500px"
+      }
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
-  }, [searchMeta.page, searchMeta.totalPages, searchMeta.query, filters, loadingSearch]);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [loadNextPage]);
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+
+      {/* Page Header */}
       <Box sx={{ mb: 5 }}>
         <Typography variant="h4" gutterBottom>
           Discover your next favorite movie
         </Typography>
-        <Typography color="text.secondary" sx={{ mb: 3 }}>
+
+        <Typography
+          color="text.secondary"
+          sx={{ mb: 3 }}
+        >
           Search TMDb, explore trending films, and save your favorites.
         </Typography>
 
         <SearchBar onSearch={handleSearch} />
       </Box>
 
+      {/* Search Results */}
       {searchMode ? (
         <>
           <Stack
@@ -96,6 +124,7 @@ export default function Home() {
               <Typography variant="h5">
                 Search results
               </Typography>
+
               <Typography color="text.secondary">
                 {searchMeta.totalResults
                   ? `${searchMeta.totalResults.toLocaleString()} results`
@@ -130,20 +159,35 @@ export default function Home() {
             onClick={loadNextPage}
           />
 
-          <Box ref={sentinelRef} sx={{ height: 1 }} />
+          {/* Infinite scroll trigger */}
+          <Box
+            ref={sentinelRef}
+            sx={{ height: 1 }}
+          />
         </>
       ) : (
         <>
           <Divider sx={{ mb: 4 }} />
-          <Typography variant="h5" sx={{ mb: 2 }}>
+
+          <Typography
+            variant="h5"
+            sx={{ mb: 2 }}
+          >
             Trending this week
           </Typography>
 
-          {trendingError && <Alert severity="error">{trendingError}</Alert>}
+          {trendingError && (
+            <Alert severity="error">
+              {trendingError}
+            </Alert>
+          )}
 
           {loadingTrending ? (
             <Stack spacing={2}>
-              <Skeleton variant="rectangular" height={420} />
+              <Skeleton
+                variant="rectangular"
+                height={420}
+              />
             </Stack>
           ) : (
             <MovieGrid
@@ -155,6 +199,7 @@ export default function Home() {
           )}
         </>
       )}
+
     </Container>
   );
 }

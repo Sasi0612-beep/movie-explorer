@@ -205,6 +205,7 @@ export function MovieProvider({ children }) {
       favorites,
       lastSearch,
       mode,
+      isFavorite,
       trending,
       movies,
       genres,
