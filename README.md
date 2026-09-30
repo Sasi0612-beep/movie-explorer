@@ -411,8 +411,4 @@ GitHub:
 
 https://github.com/Sasi0612-beep
 
----
 
-## 📄 License
-
-This project was created as part of the Loons Lab Developer Selection Test.
