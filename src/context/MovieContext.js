@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
+
 import {
   getMovieGenres,
   getTrendingMovies,
@@ -22,22 +30,32 @@ function readStorage(key, fallback) {
 }
 
 export function MovieProvider({ children }) {
-  const [user, setUser] = useState(() => readStorage(USER_KEY, null));
-  const [favorites, setFavorites] = useState(() => readStorage(FAVORITES_KEY, []));
-  const [lastSearch, setLastSearch] = useState(
-    () => readStorage(LAST_SEARCH_KEY, "")
+  const [user, setUser] = useState(() =>
+    readStorage(USER_KEY, null)
   );
-  const [mode, setMode] = useState(
-    () => readStorage(THEME_KEY, "dark")
+
+  const [favorites, setFavorites] = useState(() =>
+    readStorage(FAVORITES_KEY, [])
+  );
+
+  const [lastSearch, setLastSearch] = useState(() =>
+    readStorage(LAST_SEARCH_KEY, "")
+  );
+
+  const [mode, setMode] = useState(() =>
+    readStorage(THEME_KEY, "dark")
   );
 
   const [trending, setTrending] = useState([]);
   const [movies, setMovies] = useState([]);
   const [genres, setGenres] = useState([]);
+
   const [loadingTrending, setLoadingTrending] = useState(false);
   const [loadingSearch, setLoadingSearch] = useState(false);
+
   const [searchError, setSearchError] = useState("");
   const [trendingError, setTrendingError] = useState("");
+
   const [searchMeta, setSearchMeta] = useState({
     query: "",
     page: 0,
@@ -45,21 +63,41 @@ export function MovieProvider({ children }) {
     totalResults: 0
   });
 
+  /* -----------------------------
+     Local Storage
+  ----------------------------- */
+
   useEffect(() => {
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    localStorage.setItem(
+      USER_KEY,
+      JSON.stringify(user)
+    );
   }, [user]);
 
   useEffect(() => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    localStorage.setItem(
+      FAVORITES_KEY,
+      JSON.stringify(favorites)
+    );
   }, [favorites]);
 
   useEffect(() => {
-    localStorage.setItem(LAST_SEARCH_KEY, JSON.stringify(lastSearch));
+    localStorage.setItem(
+      LAST_SEARCH_KEY,
+      JSON.stringify(lastSearch)
+    );
   }, [lastSearch]);
 
   useEffect(() => {
-    localStorage.setItem(THEME_KEY, JSON.stringify(mode));
+    localStorage.setItem(
+      THEME_KEY,
+      JSON.stringify(mode)
+    );
   }, [mode]);
+
+  /* -----------------------------
+     Load Initial Data
+  ----------------------------- */
 
   useEffect(() => {
     async function loadInitialData() {
@@ -67,15 +105,20 @@ export function MovieProvider({ children }) {
       setTrendingError("");
 
       try {
-        const [trendingData, genreData] = await Promise.all([
-          getTrendingMovies(),
-          getMovieGenres()
-        ]);
+        const [trendingData, genreData] =
+          await Promise.all([
+            getTrendingMovies(),
+            getMovieGenres()
+          ]);
 
-        setTrending(trendingData.results || []);
+        setTrending(
+          trendingData.results || []
+        );
+
         setGenres(genreData || []);
       } catch (error) {
         console.error(error);
+
         setTrendingError(
           "Unable to load trending movies. Please check your TMDb API key and network connection."
         );
@@ -87,9 +130,20 @@ export function MovieProvider({ children }) {
     loadInitialData();
   }, []);
 
+  /* -----------------------------
+     Login
+  ----------------------------- */
+
   function login(username, password) {
-    if (!username.trim() || !password.trim()) {
-      return { ok: false, message: "Username and password are required." };
+    if (
+      !username.trim() ||
+      !password.trim()
+    ) {
+      return {
+        ok: false,
+        message:
+          "Username and password are required."
+      };
     }
 
     const account = {
@@ -98,43 +152,81 @@ export function MovieProvider({ children }) {
     };
 
     setUser(account);
+
     return { ok: true };
   }
+
+  /* -----------------------------
+     Logout
+  ----------------------------- */
 
   function logout() {
     setUser(null);
   }
 
+  /* -----------------------------
+     Theme
+  ----------------------------- */
+
   function toggleTheme() {
-    setMode((current) => (current === "dark" ? "light" : "dark"));
+    setMode((current) =>
+      current === "dark" ? "light" : "dark"
+    );
   }
 
-  function isFavorite(movieId) {
-    return favorites.some((movie) => movie.id === movieId);
-  }
+  /* -----------------------------
+     Favorites
+  ----------------------------- */
+
+  const isFavorite = useCallback(
+    (movieId) => {
+      return favorites.some(
+        (movie) => movie.id === movieId
+      );
+    },
+    [favorites]
+  );
 
   function toggleFavorite(movie) {
     setFavorites((current) => {
-      if (current.some((item) => item.id === movie.id)) {
-        return current.filter((item) => item.id !== movie.id);
+      if (
+        current.some(
+          (item) => item.id === movie.id
+        )
+      ) {
+        return current.filter(
+          (item) => item.id !== movie.id
+        );
       }
 
       return [...current, movie];
     });
   }
 
-  async function performSearch(query, filters = {}, page = 1, append = false) {
+  /* -----------------------------
+     Search Movies
+  ----------------------------- */
+
+  async function performSearch(
+    query,
+    filters = {},
+    page = 1,
+    append = false
+  ) {
     const cleanQuery = query.trim();
 
     if (!cleanQuery) {
       setMovies([]);
+
       setSearchMeta({
         query: "",
         page: 0,
         totalPages: 0,
         totalResults: 0
       });
+
       setSearchError("");
+
       return;
     }
 
@@ -142,35 +234,60 @@ export function MovieProvider({ children }) {
     setSearchError("");
 
     try {
-      const data = await searchMovies(cleanQuery, page, filters);
+      const data = await searchMovies(
+        cleanQuery,
+        page,
+        filters
+      );
+
       const results = data.results || [];
 
-      const filtered = results.filter((movie) => {
-        const ratingMatches =
-          !filters.rating || Number(movie.vote_average || 0) >= Number(filters.rating);
+      const filtered = results.filter(
+        (movie) => {
+          const ratingMatches =
+            !filters.rating ||
+            Number(
+              movie.vote_average || 0
+            ) >= Number(filters.rating);
 
-        const genreMatches =
-          !filters.genre ||
-          (movie.genre_ids || []).includes(Number(filters.genre));
+          const genreMatches =
+            !filters.genre ||
+            (movie.genre_ids || []).includes(
+              Number(filters.genre)
+            );
 
-        const yearMatches =
-          !filters.year ||
-          (movie.release_date || "").startsWith(String(filters.year));
+          const yearMatches =
+            !filters.year ||
+            (movie.release_date || "").startsWith(
+              String(filters.year)
+            );
 
-        return ratingMatches && genreMatches && yearMatches;
-      });
+          return (
+            ratingMatches &&
+            genreMatches &&
+            yearMatches
+          );
+        }
+      );
 
-      setMovies((current) => (append ? [...current, ...filtered] : filtered));
+      setMovies((current) =>
+        append
+          ? [...current, ...filtered]
+          : filtered
+      );
+
       setSearchMeta({
         query: cleanQuery,
         page: data.page || page,
         totalPages: data.total_pages || 0,
-        totalResults: data.total_results || 0
+        totalResults:
+          data.total_results || 0
       });
 
       setLastSearch(cleanQuery);
     } catch (error) {
       console.error(error);
+
       setSearchError(
         "We couldn't complete the search. Please try again in a moment."
       );
@@ -179,8 +296,40 @@ export function MovieProvider({ children }) {
     }
   }
 
+  /* -----------------------------
+     Context Value
+  ----------------------------- */
+
   const value = useMemo(
     () => ({
+      user,
+      favorites,
+      lastSearch,
+      mode,
+
+      trending,
+      movies,
+      genres,
+
+      loadingTrending,
+      loadingSearch,
+
+      searchError,
+      trendingError,
+
+      searchMeta,
+
+      login,
+      logout,
+
+      toggleTheme,
+
+      isFavorite,
+      toggleFavorite,
+
+      performSearch
+    }),
+    [
       user,
       favorites,
       lastSearch,
@@ -193,27 +342,7 @@ export function MovieProvider({ children }) {
       searchError,
       trendingError,
       searchMeta,
-      login,
-      logout,
-      toggleTheme,
-      isFavorite,
-      toggleFavorite,
-      performSearch
-    }),
-    [
-      user,
-      favorites,
-      lastSearch,
-      mode,
-      isFavorite,
-      trending,
-      movies,
-      genres,
-      loadingTrending,
-      loadingSearch,
-      searchError,
-      trendingError,
-      searchMeta
+      isFavorite
     ]
   );
 
@@ -224,11 +353,17 @@ export function MovieProvider({ children }) {
   );
 }
 
+/* -----------------------------
+   useMovie Hook
+----------------------------- */
+
 export function useMovie() {
   const context = useContext(MovieContext);
 
   if (!context) {
-    throw new Error("useMovie must be used inside MovieProvider");
+    throw new Error(
+      "useMovie must be used inside MovieProvider"
+    );
   }
 
   return context;
