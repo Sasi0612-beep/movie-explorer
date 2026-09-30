@@ -95,8 +95,9 @@ movie-explorer/
 ├── package.json
 ├── package-lock.json
 └── README.md
-🚀 Getting Started
-Prerequisites
+
+##🚀 Getting Started
+##Prerequisites
 
 Make sure you have the following installed:
 
@@ -113,7 +114,8 @@ git clone https://github.com/Sasi0612-beep/movie-explorer.git
 cd movie-explorer
 3. Install dependencies
 npm install
-🔑 Environment Variables
+
+##🔑 Environment Variables
 
 The application requires a TMDb API key.
 
@@ -125,11 +127,11 @@ You can use .env.example as a reference.
 
 Important
 
-Do not commit the .env file to GitHub.
+##Do not commit the .env file to GitHub.
 
 The .gitignore file is configured to exclude it.
 
-▶️ Run the Application
+##▶️ Run the Application
 
 Start the development server:
 
@@ -138,7 +140,8 @@ npm start
 The application will be available at:
 
 http://localhost:3000
-🔐 Login
+
+##🔐 Login
 
 This project includes a simple client-side demo login interface.
 
@@ -146,9 +149,9 @@ Any non-empty username and password can be used to access the application.
 
 This is intentionally implemented as a demo login because the assignment requires a login interface and does not include a backend authentication service.
 
-Note: This is not production-grade authentication.
+**Note:** This is not production-grade authentication.
 
-🎬 TMDb API
+##🎬 TMDb API
 
 The application uses TMDb endpoints for:
 
@@ -161,7 +164,7 @@ Movie videos/trailers
 
 Movie posters and backdrops are loaded using TMDb image URLs.
 
-🔄 Application Flow
+##🔄 Application Flow
 Login
    ↓
 Home Page
@@ -179,7 +182,8 @@ Overview + Genres + Cast + Trailer
 Add to Favorites
    ↓
 Favorites Page
-💾 Local Storage
+
+##💾 Local Storage
 
 The application uses browser localStorage to persist:
 
@@ -189,7 +193,7 @@ Light/Dark theme preference
 
 This allows selected user preferences to remain available after refreshing the browser.
 
-🎨 Theme Support
+##🎨 Theme Support
 
 The application supports:
 
@@ -198,7 +202,7 @@ The application supports:
 
 The selected theme preference is stored in localStorage.
 
-📱 Responsive Design
+##📱 Responsive Design
 
 The application follows a mobile-first responsive design approach.
 
@@ -228,14 +232,14 @@ Missing movie information
 Missing trailers
 🏗️ Production Build
 
-To create a production build:
+##To create a production build:
 
 npm run build
 
 The optimized production files will be generated in:
 
 build/
-☁️ Deployment
+##☁️ Deployment
 Vercel
 Import the GitHub repository into Vercel.
 Select the movie-explorer repository.
@@ -252,7 +256,8 @@ build
 Add the environment variable:
 REACT_APP_TMDB_API_KEY
 Deploy the application.
-📸 Screenshots
+
+##📸 Screenshots
 
 Screenshots can be added here to demonstrate the main application screens.
 
@@ -269,7 +274,8 @@ Mobile View
 Example:
 
 ![Home](screenshots/home.png)
-🧪 Before Submission Checklist
+
+##🧪 Before Submission Checklist
  Application runs successfully with npm start
  Login works
  Trending movies load
@@ -297,7 +303,8 @@ Example:
  Application deployed successfully
  Live URL added to this README
  Complete source code pushed to GitHub
-🔒 Security Note
+ 
+##🔒 Security Note
 
 This is a frontend-only application, so the TMDb API key used by the client is accessible in the browser.
 
@@ -305,7 +312,7 @@ The .env file is excluded from version control and should never be committed to 
 
 For a production architecture, TMDb requests could be routed through a backend service where appropriate security controls can be applied.
 
-🎞️ TMDb Attribution
+##🎞️ TMDb Attribution
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
 
@@ -315,7 +322,7 @@ For more information:
 
 https://www.themoviedb.org/
 
-👨‍💻 Author
+##👨‍💻 Author
 
 Sasi Priya
 
